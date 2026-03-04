@@ -475,6 +475,55 @@
     }
     .pair-modal-field-value.dim { color: var(--text-dim); font-style: italic; }
 
+    /* ── EVENT PICKER ─────────────────────────────────── */
+    #eventPicker {
+      position: fixed; inset: 0; z-index: 600;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      overflow-y: auto;
+      transition: opacity 0.42s ease;
+    }
+    #eventPicker.fade-out { opacity: 0; pointer-events: none; }
+
+    .ep-inner {
+      text-align: center; padding: 40px 24px;
+      max-width: 680px; width: 100%;
+    }
+    .ep-brand {
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      font-weight: 300; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--text-dim);
+    }
+    .ep-brand span { color: var(--white); font-weight: 700; }
+    .ep-subtitle {
+      font-size: clamp(0.75rem, 2vw, 0.9rem);
+      color: var(--text-dim); margin-top: 6px; letter-spacing: 0.08em;
+    }
+    .ep-grid {
+      display: flex; flex-wrap: wrap; gap: 20px;
+      justify-content: center; margin-top: 48px;
+    }
+    .ep-card {
+      background: var(--navy2);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 36px 32px; width: 240px;
+      cursor: pointer; text-align: center;
+      transition: transform 0.2s, border-color 0.2s, background 0.2s;
+      color: var(--white); font-family: 'Outfit', sans-serif;
+    }
+    .ep-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      background: var(--navy3);
+    }
+    .ep-icon { font-size: 2.8rem; margin-bottom: 16px; }
+    .ep-name { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+    .ep-date {
+      font-size: 0.78rem; font-weight: 300;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent);
+    }
+
     /* ── PASSWORD GATE ────────────────────────────────── */
     #passwordGate {
       position: fixed; inset: 0; z-index: 500;
@@ -547,8 +596,23 @@
 </head>
 <body>
 
+  <!-- EVENT PICKER -->
+  <div id="eventPicker">
+    <div class="ep-inner">
+      <div class="ep-brand">events by <span>sfydk</span></div>
+      <div class="ep-subtitle">some friends you don't know</div>
+      <div class="ep-grid">
+        <button class="ep-card" data-event="march21">
+          <div class="ep-icon">🎉</div>
+          <div class="ep-name">some friends you don't know</div>
+          <div class="ep-date">saturday, march 21</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- PASSWORD GATE -->
-  <div id="passwordGate">
+  <div id="passwordGate" style="display:none;">
     <div class="gate-card">
       <div class="gate-logo">sfydk</div>
       <div class="gate-tagline">some friends you don't know</div>
@@ -786,36 +850,54 @@
       document.getElementById('icalBtn').href = URL.createObjectURL(blob);
     })();
 
-    // ── Password gate ─────────────────────────────────────
+    // ── Event picker + Password gate ──────────────────────
     (function() {
-      const gate = document.getElementById('passwordGate');
+      const picker = document.getElementById('eventPicker');
+      const gate   = document.getElementById('passwordGate');
+
+      function showGate() {
+        gate.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        const input = document.getElementById('gateInput');
+        const btn   = document.getElementById('gateBtn');
+        const err   = document.getElementById('gateError');
+
+        function tryUnlock() {
+          if (input.value.trim().toUpperCase() === 'SFYDK') {
+            sessionStorage.setItem('sfydk_auth', '1');
+            gate.classList.add('fade-out');
+            document.body.style.overflow = '';
+            setTimeout(() => gate.remove(), 420);
+          } else {
+            input.classList.remove('shake');
+            void input.offsetWidth;
+            input.classList.add('shake');
+            err.textContent = 'incorrect — try again';
+            input.value = '';
+            setTimeout(() => { err.textContent = ''; input.classList.remove('shake'); }, 2500);
+          }
+        }
+        btn.addEventListener('click', tryUnlock);
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+        input.focus();
+      }
+
       if (sessionStorage.getItem('sfydk_auth') === '1') {
+        picker.remove();
         gate.remove();
         return;
       }
-      document.body.style.overflow = 'hidden';
-      const input = document.getElementById('gateInput');
-      const btn   = document.getElementById('gateBtn');
-      const err   = document.getElementById('gateError');
 
-      function tryUnlock() {
-        if (input.value.trim().toUpperCase() === 'SFYDK') {
-          sessionStorage.setItem('sfydk_auth', '1');
-          gate.classList.add('fade-out');
-          document.body.style.overflow = '';
-          setTimeout(() => gate.remove(), 420);
-        } else {
-          input.classList.remove('shake');
-          void input.offsetWidth;
-          input.classList.add('shake');
-          err.textContent = 'incorrect — try again';
-          input.value = '';
-          setTimeout(() => { err.textContent = ''; input.classList.remove('shake'); }, 2500);
-        }
-      }
-      btn.addEventListener('click', tryUnlock);
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
-      input.focus();
+      document.body.style.overflow = 'hidden';
+      picker.querySelectorAll('.ep-card').forEach(card => {
+        card.addEventListener('click', () => {
+          picker.classList.add('fade-out');
+          setTimeout(() => {
+            picker.remove();
+            showGate();
+          }, 420);
+        });
+      });
     })();
 
     // ── Hamburger ────────────────────────────────────────
