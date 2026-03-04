@@ -102,28 +102,6 @@
       overflow: hidden;
     }
 
-    .hero-dot {
-      position: absolute;
-      width: 18px; height: 18px;
-      background: var(--accent);
-      border-radius: 50%;
-      top: 38%; right: 22%;
-      animation: float 4s ease-in-out infinite;
-    }
-    .hero-dot-2 {
-      position: absolute;
-      width: 10px; height: 10px;
-      background: rgba(61,122,200,0.45);
-      border-radius: 50%;
-      bottom: 28%; left: 10%;
-      animation: float 6s ease-in-out infinite reverse;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-
     .hero-marquee-wrap { overflow: hidden; margin-bottom: 8px; }
 
     .hero-title {
@@ -224,6 +202,25 @@
       line-height: 1.1;
     }
     .section-heading span { color: var(--accent); }
+
+    /* ── ADD TO CALENDAR ─────────────────────────────── */
+    .cal-buttons {
+      display: flex; justify-content: center; gap: 12px;
+      flex-wrap: wrap; margin-top: 32px;
+    }
+    .btn-cal {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.25);
+      border-radius: 999px;
+      padding: 12px 24px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .btn-cal:hover { border-color: var(--white); background: rgba(255,255,255,0.07); transform: translateY(-1px); }
 
     /* ── CONCEPT ──────────────────────────────────────── */
     .concept-section {
@@ -430,6 +427,109 @@
     .footer-logo { font-size: 1.3rem; font-weight: 700; color: var(--navy); }
     .footer-text { font-size: 0.82rem; color: rgba(13,42,94,0.5); }
 
+    /* ── PAIR MODAL ───────────────────────────────────── */
+    .pair-modal-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.65);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .pair-modal-overlay.visible { opacity: 1; }
+
+    .pair-modal-card {
+      background: var(--navy2);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 36px 32px;
+      max-width: 440px; width: 100%;
+      position: relative;
+      transform: scale(0.92); transition: transform 0.2s;
+    }
+    .pair-modal-overlay.visible .pair-modal-card { transform: scale(1); }
+
+    .pair-modal-close {
+      position: absolute; top: 16px; right: 18px;
+      background: none; border: none; color: var(--text-dim);
+      font-size: 1.4rem; cursor: pointer; line-height: 1;
+    }
+    .pair-modal-close:hover { color: var(--white); }
+
+    .pair-modal-avatars { display: flex; justify-content: center; gap: 0; margin-bottom: 20px; }
+    .pair-modal-avatars .avatar { width: 56px; height: 56px; font-size: 1.2rem; }
+    .pair-modal-avatars .avatar:nth-child(2) { margin-left: -14px; }
+
+    .pair-modal-names {
+      text-align: center; font-size: 1.25rem; font-weight: 800;
+      margin-bottom: 24px; line-height: 1.3;
+    }
+    .pair-modal-names .plus-sign { color: var(--accent); }
+
+    .pair-modal-field { margin-bottom: 16px; }
+    .pair-modal-field-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+    }
+    .pair-modal-field-value {
+      font-size: 0.95rem; color: var(--white); line-height: 1.5;
+    }
+    .pair-modal-field-value.dim { color: var(--text-dim); font-style: italic; }
+
+    /* ── PASSWORD GATE ────────────────────────────────── */
+    #passwordGate {
+      position: fixed; inset: 0; z-index: 500;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      transition: opacity 0.4s;
+    }
+    #passwordGate.fade-out { opacity: 0; pointer-events: none; }
+
+    .gate-card {
+      text-align: center; max-width: 360px; width: 100%;
+    }
+    .gate-logo {
+      font-size: 2.2rem; font-weight: 900; color: var(--white);
+      letter-spacing: -1px; margin-bottom: 8px;
+    }
+    .gate-tagline {
+      font-size: 0.85rem; color: var(--text-dim);
+      margin-bottom: 36px; letter-spacing: 0.04em;
+    }
+    .gate-input {
+      width: 100%; background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      border-radius: 12px; padding: 16px 20px;
+      font-family: 'Outfit', sans-serif; font-size: 1.1rem;
+      color: var(--white); outline: none; text-align: center;
+      letter-spacing: 0.12em; font-weight: 600;
+      transition: border-color 0.2s;
+      margin-bottom: 12px;
+    }
+    .gate-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
+    .gate-input.shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97);
+      border-color: #e05c5c !important;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(4px); }
+      30%, 50%, 70% { transform: translateX(-6px); }
+      40%, 60% { transform: translateX(6px); }
+    }
+    .gate-error {
+      font-size: 0.82rem; color: #e05c5c;
+      min-height: 20px; margin-bottom: 12px;
+    }
+    .gate-btn {
+      width: 100%; background: var(--accent); color: var(--white);
+      border: none; border-radius: 999px;
+      padding: 16px; font-family: 'Outfit', sans-serif;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .gate-btn:hover { background: #5190d9; transform: translateY(-1px); }
+
     /* ── SCROLL FADE IN ───────────────────────────────── */
     .fade-in {
       opacity: 0; transform: translateY(24px);
@@ -446,6 +546,27 @@
   </style>
 </head>
 <body>
+
+  <!-- PASSWORD GATE -->
+  <div id="passwordGate">
+    <div class="gate-card">
+      <div class="gate-logo">sfydk</div>
+      <div class="gate-tagline">some friends you don't know</div>
+      <input class="gate-input" id="gateInput" type="password" placeholder="password" autocomplete="off" />
+      <div class="gate-error" id="gateError"></div>
+      <button class="gate-btn" id="gateBtn">enter →</button>
+    </div>
+  </div>
+
+  <!-- PAIR DETAIL MODAL -->
+  <div class="pair-modal-overlay" id="pairModal" style="display:none;">
+    <div class="pair-modal-card" id="pairModalCard">
+      <button class="pair-modal-close" id="pairModalClose">×</button>
+      <div class="pair-modal-avatars" id="pairModalAvatars"></div>
+      <div class="pair-modal-names" id="pairModalNames"></div>
+      <div id="pairModalFields"></div>
+    </div>
+  </div>
 
   <!-- NAV -->
   <nav>
@@ -468,9 +589,6 @@
 
   <!-- HERO -->
   <section class="hero" id="top">
-    <div class="hero-dot"></div>
-    <div class="hero-dot-2"></div>
-
     <div class="hero-marquee-wrap">
       <span class="hero-title">
         some friends you don't know &nbsp;&nbsp;&nbsp; some friends you don't know &nbsp;&nbsp;&nbsp;
@@ -494,20 +612,20 @@
         <div class="detail-card fade-in">
           <div class="detail-icon">📅</div>
           <div class="detail-label">date</div>
-          <div class="detail-value">saturday, april 12</div>
-          <div class="detail-sub">doors open at 7pm</div>
+          <div class="detail-value">saturday, march 21</div>
+          <div class="detail-sub">mark your calendar</div>
         </div>
         <div class="detail-card fade-in">
           <div class="detail-icon">🕖</div>
           <div class="detail-label">time</div>
-          <div class="detail-value">7:00 – 11:00 pm</div>
+          <div class="detail-value">6:00 – 10:00 pm</div>
           <div class="detail-sub">arrive anytime</div>
         </div>
         <div class="detail-card fade-in">
           <div class="detail-icon">📍</div>
           <div class="detail-label">location</div>
-          <div class="detail-value">tbd — nyc</div>
-          <div class="detail-sub">address sent to rsvps</div>
+          <div class="detail-value">Christopher's apartment</div>
+          <div class="detail-sub">address released via email after submission</div>
         </div>
         <div class="detail-card fade-in">
           <div class="detail-icon">🎟️</div>
@@ -515,6 +633,16 @@
           <div class="detail-value">free</div>
           <div class="detail-sub">just bring your +1</div>
         </div>
+      </div>
+      <div class="cal-buttons fade-in">
+        <a class="btn-cal" href="https://www.google.com/calendar/render?action=TEMPLATE&text=sfydk+%E2%80%94+some+friends+you+don%27t+know&dates=20260321T180000/20260321T220000&details=a+party+built+on+introductions&location=Christopher%27s+apartment+%28address+released+via+email%29" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Google Calendar
+        </a>
+        <a class="btn-cal" id="icalBtn" href="#" download="sfydk.ics">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Apple / iCal
+        </a>
       </div>
     </div>
   </section>
@@ -641,7 +769,54 @@
     // ── Config ────────────────────────────────────────────
     const AIRTABLE_TOKEN = 'patRcpcnmdSE0rInG.32c2555a516fa4ee8f01bd78328f7150b4450608e78ec78b9ec7b518a8b4054f';
     const AIRTABLE_URL   = 'https://api.airtable.com/v0/appc7TCj498K2QVzq/tbl1nXIyQEGvCysB0';
-    const FORMSPREE_URL  = 'https://formspree.io/f/xgolgjoj';
+
+    // ── iCal download link ────────────────────────────────
+    (function() {
+      const ics = [
+        'BEGIN:VCALENDAR','VERSION:2.0','CALSCALE:GREGORIAN',
+        'BEGIN:VEVENT',
+        'SUMMARY:sfydk \u2014 some friends you don\'t know',
+        'DTSTART:20260321T180000',
+        'DTEND:20260321T220000',
+        'LOCATION:Christopher\'s apartment (address released via email)',
+        'DESCRIPTION:a party built on introductions',
+        'END:VEVENT','END:VCALENDAR'
+      ].join('\r\n');
+      const blob = new Blob([ics], { type: 'text/calendar' });
+      document.getElementById('icalBtn').href = URL.createObjectURL(blob);
+    })();
+
+    // ── Password gate ─────────────────────────────────────
+    (function() {
+      const gate = document.getElementById('passwordGate');
+      if (sessionStorage.getItem('sfydk_auth') === '1') {
+        gate.remove();
+        return;
+      }
+      document.body.style.overflow = 'hidden';
+      const input = document.getElementById('gateInput');
+      const btn   = document.getElementById('gateBtn');
+      const err   = document.getElementById('gateError');
+
+      function tryUnlock() {
+        if (input.value.trim().toUpperCase() === 'SFYDK') {
+          sessionStorage.setItem('sfydk_auth', '1');
+          gate.classList.add('fade-out');
+          document.body.style.overflow = '';
+          setTimeout(() => gate.remove(), 420);
+        } else {
+          input.classList.remove('shake');
+          void input.offsetWidth;
+          input.classList.add('shake');
+          err.textContent = 'incorrect — try again';
+          input.value = '';
+          setTimeout(() => { err.textContent = ''; input.classList.remove('shake'); }, 2500);
+        }
+      }
+      btn.addEventListener('click', tryUnlock);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+      input.focus();
+    })();
 
     // ── Hamburger ────────────────────────────────────────
     const hamburger = document.getElementById('hamburger');
@@ -670,6 +845,54 @@
       return name.trim().split(/\s+/).map(w => w[0]).slice(0,2).join('').toUpperCase();
     }
 
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Pair detail modal ─────────────────────────────────
+    const pairModal   = document.getElementById('pairModal');
+    const pairCard    = document.getElementById('pairModalCard');
+
+    function openPairModal(g) {
+      const you   = g.you   || '?';
+      const them  = g.plus1 || '?';
+      document.getElementById('pairModalAvatars').innerHTML = `
+        <div class="avatar avatar-a">${escHtml(initials(you))}</div>
+        <div class="avatar avatar-b">${escHtml(initials(them))}</div>
+      `;
+      document.getElementById('pairModalNames').innerHTML =
+        `${escHtml(you)} <span class="plus-sign">+</span> ${escHtml(them)}`;
+      const fields = document.getElementById('pairModalFields');
+      fields.innerHTML = '';
+      if (g.invitedBy) {
+        fields.innerHTML += `
+          <div class="pair-modal-field">
+            <div class="pair-modal-field-label">invited by</div>
+            <div class="pair-modal-field-value">${escHtml(g.invitedBy)}</div>
+          </div>`;
+      }
+      if (g.howKnow) {
+        fields.innerHTML += `
+          <div class="pair-modal-field">
+            <div class="pair-modal-field-label">how they know their +1</div>
+            <div class="pair-modal-field-value">${escHtml(g.howKnow)}</div>
+          </div>`;
+      }
+      if (!g.invitedBy && !g.howKnow) {
+        fields.innerHTML = `<div class="pair-modal-field"><div class="pair-modal-field-value dim">no extra details on file</div></div>`;
+      }
+      pairModal.style.display = 'flex';
+      requestAnimationFrame(() => pairModal.classList.add('visible'));
+    }
+
+    function closePairModal() {
+      pairModal.classList.remove('visible');
+      setTimeout(() => { pairModal.style.display = 'none'; }, 200);
+    }
+
+    document.getElementById('pairModalClose').addEventListener('click', closePairModal);
+    pairModal.addEventListener('click', e => { if (e.target === pairModal) closePairModal(); });
+
     function renderGuests() {
       const grid = document.getElementById('guestGrid');
       const empty = document.getElementById('guestsEmpty');
@@ -683,18 +906,20 @@
       }
       empty.style.display = 'none';
 
-      // Only re-render new cards
-      const existing = grid.querySelectorAll('.guest-pair').length;
-      guests.slice(existing).forEach(g => {
+      // Re-render all cards so detail data stays in sync
+      grid.querySelectorAll('.guest-pair').forEach(c => c.remove());
+      guests.forEach((g, idx) => {
         const card = document.createElement('div');
         card.className = 'guest-pair fade-in';
+        card.style.cursor = 'pointer';
+        card.title = 'click for details';
         const youInitials = initials(g.you);
         const them = g.plus1 || '?';
         const themInitials = initials(them);
         card.innerHTML = `
           <div class="guest-avatars">
-            <div class="avatar avatar-a">${youInitials}</div>
-            <div class="avatar avatar-b">${themInitials}</div>
+            <div class="avatar avatar-a">${escHtml(youInitials)}</div>
+            <div class="avatar avatar-b">${escHtml(themInitials)}</div>
           </div>
           <div class="guest-info">
             <div class="guest-name">${escHtml(g.you)}</div>
@@ -702,16 +927,10 @@
           </div>
           <span class="guest-connector">pair</span>
         `;
+        card.addEventListener('click', () => openPairModal(guests[idx]));
         grid.insertBefore(card, empty);
-        // trigger fade
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          observer.observe(card);
-        }));
+        requestAnimationFrame(() => requestAnimationFrame(() => { observer.observe(card); }));
       });
-    }
-
-    function escHtml(s) {
-      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     // ── Load guests from Airtable ─────────────────────────
@@ -722,8 +941,10 @@
         });
         const data = await res.json();
         guests = (data.records || []).map(r => ({
-          you:   r.fields['Name']     || '',
-          plus1: r.fields['Plus One'] || '',
+          you:       r.fields['Name']          || '',
+          plus1:     r.fields['Plus One']      || '',
+          howKnow:   r.fields['How They Know'] || '',
+          invitedBy: r.fields['Invited By']    || '',
         })).filter(g => g.you);
         renderGuests();
       } catch (err) {
@@ -761,13 +982,6 @@
       const plus1Name = [plus1First, plus1Last].filter(Boolean).join(' ');
 
       try {
-        // Formspree — fire and forget (email notification)
-        fetch(FORMSPREE_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ name: youName, email, invitedBy: howKnow, plusOne: plus1Name, howTheyKnow: plus1How })
-        });
-
         // Airtable — await so we confirm it saved
         const atRes = await fetch(AIRTABLE_URL, {
           method: 'POST',
@@ -792,7 +1006,7 @@
           throw new Error(`Airtable ${atRes.status}: ${msg}`);
         }
 
-        guests.push({ you: youName, plus1: plus1Name });
+        guests.push({ you: youName, plus1: plus1Name, howKnow: plus1How, invitedBy: howKnow });
         renderGuests();
 
         // Show success
