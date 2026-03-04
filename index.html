@@ -638,6 +638,11 @@
   </footer>
 
   <script>
+    // ── Config ────────────────────────────────────────────
+    const AIRTABLE_TOKEN = 'patRcpcnmdSE0rInG.32c2555a516fa4ee8f01bd78328f7150b4450608e78ec78b9ec7b518a8b4054f';
+    const AIRTABLE_URL   = 'https://api.airtable.com/v0/appc7TCj498K2QVzq/tbl1nXIyQEGvCysB0';
+    const FORMSPREE_URL  = 'https://formspree.io/f/xgolgjoj';
+
     // ── Hamburger ────────────────────────────────────────
     const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobileMenu');
@@ -659,7 +664,7 @@
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
     // ── Guest list state ──────────────────────────────────
-    let guests = JSON.parse(localStorage.getItem('sfydk_guests') || '[]');
+    let guests = [];
 
     function initials(name) {
       return name.trim().split(/\s+/).map(w => w[0]).slice(0,2).join('').toUpperCase();
@@ -709,15 +714,36 @@
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    renderGuests();
+    // ── Load guests from Airtable ─────────────────────────
+    async function loadGuests() {
+      try {
+        const res = await fetch(AIRTABLE_URL, {
+          headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
+        });
+        const data = await res.json();
+        guests = (data.records || []).map(r => ({
+          you:   r.fields['Name']     || '',
+          plus1: r.fields['Plus One'] || '',
+        })).filter(g => g.you);
+        renderGuests();
+      } catch (err) {
+        console.error('Failed to load guests:', err);
+      }
+    }
+
+    loadGuests();
+    setInterval(loadGuests, 30000);
 
     // ── RSVP Form ─────────────────────────────────────────
-    document.getElementById('rsvpForm').addEventListener('submit', function(e) {
+    document.getElementById('rsvpForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const firstName  = document.getElementById('firstName').value.trim();
       const lastName   = document.getElementById('lastName').value.trim();
+      const email      = document.getElementById('email').value.trim();
+      const howKnow    = document.getElementById('howKnow').value.trim();
       const plus1First = document.getElementById('plus1First').value.trim();
       const plus1Last  = document.getElementById('plus1Last').value.trim();
+      const plus1How   = document.getElementById('plus1How').value.trim();
 
       if (!firstName || !plus1First) {
         const missing = !firstName ? document.getElementById('firstName') : document.getElementById('plus1First');
@@ -727,27 +753,66 @@
         return;
       }
 
-      const entry = {
-        you:   [firstName, lastName].filter(Boolean).join(' '),
-        plus1: [plus1First, plus1Last].filter(Boolean).join(' '),
-      };
+      const btn = this.querySelector('.btn-submit');
+      btn.disabled = true;
+      btn.textContent = 'saving…';
 
-      guests.push(entry);
-      localStorage.setItem('sfydk_guests', JSON.stringify(guests));
-      renderGuests();
+      const youName   = [firstName, lastName].filter(Boolean).join(' ');
+      const plus1Name = [plus1First, plus1Last].filter(Boolean).join(' ');
 
-      // Show success
-      this.style.display = 'none';
-      const success = document.getElementById('rsvpSuccess');
-      success.style.display = 'block';
-      success.querySelector('.success-icon').style.animation = 'none';
-      void success.querySelector('.success-icon').offsetWidth;
-      success.querySelector('.success-icon').style.animation = '';
+      try {
+        // Formspree — fire and forget (email notification)
+        fetch(FORMSPREE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ name: youName, email, invitedBy: howKnow, plusOne: plus1Name, howTheyKnow: plus1How })
+        });
 
-      // Scroll to guests after a beat
-      setTimeout(() => {
-        document.getElementById('guests').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 1800);
+        // Airtable — await so we confirm it saved
+        const atRes = await fetch(AIRTABLE_URL, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            records: [{ fields: {
+              Name: youName,
+              Email: email,
+              'Invited By': howKnow,
+              'Plus One': plus1Name,
+              'How They Know': plus1How
+            }}]
+          })
+        });
+
+        if (!atRes.ok) {
+          const errBody = await atRes.json().catch(() => ({}));
+          const msg = errBody?.error?.message || JSON.stringify(errBody);
+          throw new Error(`Airtable ${atRes.status}: ${msg}`);
+        }
+
+        guests.push({ you: youName, plus1: plus1Name });
+        renderGuests();
+
+        // Show success
+        this.style.display = 'none';
+        const success = document.getElementById('rsvpSuccess');
+        success.style.display = 'block';
+        success.querySelector('.success-icon').style.animation = 'none';
+        void success.querySelector('.success-icon').offsetWidth;
+        success.querySelector('.success-icon').style.animation = '';
+
+        // Scroll to guests after a beat
+        setTimeout(() => {
+          document.getElementById('guests').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 1800);
+
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = err.message || 'something went wrong — try again';
+        setTimeout(() => { btn.textContent = 'lock in my spot →'; }, 6000);
+      }
     });
 
     // Reset border on input
