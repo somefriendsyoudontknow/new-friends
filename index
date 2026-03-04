@@ -1,0 +1,6 @@
+cd /home/user
+   git init
+   git add index.html
+   git commit -m "add sfydk party site"
+   git remote add origin https://TOKEN@github.com/somefriendsyoudontknow/new-friends.git
+   git push -u origin main
