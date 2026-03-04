@@ -579,6 +579,9 @@
     }
     .gate-btn:hover { background: #5190d9; transform: translateY(-1px); }
 
+    /* ── LOCK: hide site content until auth ───────────── */
+    body.locked > *:not(#eventPicker):not(#passwordGate) { display: none !important; }
+
     /* ── SCROLL FADE IN ───────────────────────────────── */
     .fade-in {
       opacity: 0; transform: translateY(24px);
@@ -594,7 +597,7 @@
     }
   </style>
 </head>
-<body>
+<body class="locked">
 
   <!-- EVENT PICKER -->
   <div id="eventPicker">
@@ -608,17 +611,6 @@
           <div class="ep-date">saturday, march 21</div>
         </button>
       </div>
-    </div>
-  </div>
-
-  <!-- PASSWORD GATE -->
-  <div id="passwordGate" style="display:none;">
-    <div class="gate-card">
-      <div class="gate-logo">sfydk</div>
-      <div class="gate-tagline">some friends you don't know</div>
-      <input class="gate-input" id="gateInput" type="password" placeholder="password" autocomplete="off" />
-      <div class="gate-error" id="gateError"></div>
-      <button class="gate-btn" id="gateBtn">enter →</button>
     </div>
   </div>
 
@@ -853,20 +845,35 @@
     // ── Event picker + Password gate ──────────────────────
     (function() {
       const picker = document.getElementById('eventPicker');
-      const gate   = document.getElementById('passwordGate');
+
+      function unlock() {
+        sessionStorage.setItem('sfydk_auth', '1');
+        observer.disconnect();
+        document.body.classList.remove('locked');
+        document.body.style.overflow = '';
+      }
 
       function showGate() {
-        gate.style.display = 'flex';
+        const gate = document.createElement('div');
+        gate.id = 'passwordGate';
+        gate.innerHTML = `<div class="gate-card">
+          <div class="gate-logo">sfydk</div>
+          <div class="gate-tagline">some friends you don't know</div>
+          <input class="gate-input" id="gateInput" type="password" placeholder="password" autocomplete="off" />
+          <div class="gate-error" id="gateError"></div>
+          <button class="gate-btn" id="gateBtn">enter →</button>
+        </div>`;
+        document.body.appendChild(gate);
         document.body.style.overflow = 'hidden';
-        const input = document.getElementById('gateInput');
-        const btn   = document.getElementById('gateBtn');
-        const err   = document.getElementById('gateError');
+
+        const input = gate.querySelector('#gateInput');
+        const btn   = gate.querySelector('#gateBtn');
+        const err   = gate.querySelector('#gateError');
 
         function tryUnlock() {
           if (input.value.trim().toUpperCase() === 'SFYDK') {
-            sessionStorage.setItem('sfydk_auth', '1');
+            unlock();
             gate.classList.add('fade-out');
-            document.body.style.overflow = '';
             setTimeout(() => gate.remove(), 420);
           } else {
             input.classList.remove('shake');
@@ -882,9 +889,20 @@
         input.focus();
       }
 
+      // MutationObserver: if picker/gate removed without auth, keep content locked
+      const observer = new MutationObserver(() => {
+        if (sessionStorage.getItem('sfydk_auth') === '1') return;
+        if (!document.getElementById('eventPicker') && !document.getElementById('passwordGate')) {
+          document.body.classList.add('locked');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+      observer.observe(document.body, { childList: true });
+
       if (sessionStorage.getItem('sfydk_auth') === '1') {
+        observer.disconnect();
         picker.remove();
-        gate.remove();
+        document.body.classList.remove('locked');
         return;
       }
 
