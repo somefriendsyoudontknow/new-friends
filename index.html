@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sfydk — some friends you don't know</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:   #FAF5F0;
+      --navy:    #0D2A5E;
+      --navy2:   #163872;
+      --navy3:   #1B4A8A;
+      --accent:  #3D7AC8;
+      --white:   #FFFFFF;
+      --text-dim: rgba(255,255,255,0.65);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ──────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      height: 64px;
+    }
+
+    .nav-left { display: flex; align-items: center; gap: 18px; }
+
+    .hamburger {
+      background: none; border: none; cursor: pointer;
+      display: flex; flex-direction: column; gap: 5px; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--navy); border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .logo {
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--navy); text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-btn {
+      background: var(--navy); color: var(--white);
+      border: none; border-radius: 999px;
+      padding: 10px 22px; font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .nav-btn:hover { background: var(--navy3); transform: translateY(-1px); }
+
+    /* ── MOBILE MENU ──────────────────────────────────── */
+    .mobile-menu {
+      position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--cream); z-index: 99;
+      padding: 24px 28px 32px;
+      display: flex; flex-direction: column; gap: 20px;
+      transform: translateY(-100%); opacity: 0;
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.3s;
+      pointer-events: none;
+    }
+    .mobile-menu.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+    .mobile-menu a {
+      font-size: 1.4rem; font-weight: 600; color: var(--navy);
+      text-decoration: none; padding: 8px 0;
+      border-bottom: 1px solid rgba(13,42,94,0.1);
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+
+    /* ── HERO ─────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      background: var(--navy);
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 100px 0 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-dot {
+      position: absolute;
+      width: 18px; height: 18px;
+      background: var(--accent);
+      border-radius: 50%;
+      top: 38%; right: 22%;
+      animation: float 4s ease-in-out infinite;
+    }
+    .hero-dot-2 {
+      position: absolute;
+      width: 10px; height: 10px;
+      background: rgba(61,122,200,0.45);
+      border-radius: 50%;
+      bottom: 28%; left: 10%;
+      animation: float 6s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .hero-marquee-wrap { overflow: hidden; margin-bottom: 8px; }
+
+    .hero-title {
+      font-size: clamp(4rem, 11vw, 10rem);
+      font-weight: 900;
+      line-height: 1.0;
+      color: var(--white);
+      white-space: nowrap;
+      animation: marquee 18s linear infinite;
+      display: inline-block;
+      padding-right: 120px;
+    }
+
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .hero-subtitle {
+      text-align: center;
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      font-weight: 400;
+      color: var(--text-dim);
+      margin-top: 40px;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-cta {
+      display: flex; justify-content: center; gap: 16px;
+      margin-top: 36px; flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--white);
+      border: none; border-radius: 999px;
+      padding: 16px 40px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: #5190d9; transform: translateY(-2px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--white);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      padding: 14px 38px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: border-color 0.2s, transform 0.15s;
+      display: inline-block;
+    }
+    .btn-ghost:hover { border-color: var(--white); transform: translateY(-2px); }
+
+    /* ── EVENT DETAILS ────────────────────────────────── */
+    .details-section {
+      background: var(--navy2);
+      padding: 80px 28px;
+    }
+
+    .section-label {
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 12px;
+    }
+
+    .details-grid {
+      max-width: 900px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px; margin-top: 48px;
+    }
+
+    .detail-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 28px 24px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .detail-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); }
+
+    .detail-icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .detail-label {
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 6px;
+    }
+    .detail-value { font-size: 1.1rem; font-weight: 700; color: var(--white); }
+    .detail-sub { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+
+    .section-heading {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800; color: var(--white);
+      line-height: 1.1;
+    }
+    .section-heading span { color: var(--accent); }
+
+    /* ── CONCEPT ──────────────────────────────────────── */
+    .concept-section {
+      background: var(--navy);
+      padding: 80px 28px;
+    }
+
+    .concept-inner {
+      max-width: 900px; margin: 0 auto;
+    }
+
+    .concept-body {
+      margin-top: 40px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .concept-card {
+      background: rgba(61,122,200,0.12);
+      border: 1px solid rgba(61,122,200,0.25);
+      border-radius: 20px; padding: 32px 28px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .concept-card:hover { background: rgba(61,122,200,0.2); transform: translateY(-3px); }
+
+    .concept-number {
+      font-size: 2.5rem; font-weight: 900;
+      color: var(--accent); margin-bottom: 12px;
+      line-height: 1;
+    }
+    .concept-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+    .concept-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+
+    /* ── RSVP ─────────────────────────────────────────── */
+    .rsvp-section {
+      background: var(--navy2);
+      padding: 80px 28px;
+    }
+
+    .rsvp-inner {
+      max-width: 560px; margin: 0 auto;
+    }
+
+    .rsvp-form {
+      margin-top: 40px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+
+    .form-row { display: flex; gap: 14px; }
+    .form-row .form-group { flex: 1; }
+
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+
+    label {
+      font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    input, select, textarea {
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 12px; padding: 14px 16px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem; color: var(--white);
+      outline: none; transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+    }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.3); }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.1);
+    }
+    select option { background: var(--navy2); color: var(--white); }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--text-dim); font-size: 0.85rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .plus1-box {
+      background: rgba(61,122,200,0.1);
+      border: 1.5px solid rgba(61,122,200,0.3);
+      border-radius: 16px; padding: 20px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+
+    .plus1-header {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .plus1-badge {
+      background: var(--accent); border-radius: 999px;
+      padding: 4px 12px; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .plus1-title { font-size: 0.9rem; font-weight: 600; color: var(--text-dim); }
+
+    .btn-submit {
+      background: var(--accent); color: var(--white);
+      border: none; border-radius: 999px;
+      padding: 18px; width: 100%;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem; font-weight: 700;
+      cursor: pointer; margin-top: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-submit:hover { background: #5190d9; transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(0); }
+
+    /* ── SUCCESS STATE ────────────────────────────────── */
+    .rsvp-success {
+      display: none;
+      text-align: center; padding: 48px 24px;
+    }
+    .success-icon {
+      font-size: 3.5rem; margin-bottom: 16px;
+      animation: pop 0.5s cubic-bezier(.175,.885,.32,1.275);
+    }
+    @keyframes pop {
+      0% { transform: scale(0); } 100% { transform: scale(1); }
+    }
+    .success-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; }
+    .success-text { color: var(--text-dim); line-height: 1.6; }
+
+    /* ── GUEST LIST ───────────────────────────────────── */
+    .guests-section {
+      background: var(--navy);
+      padding: 80px 28px;
+    }
+
+    .guests-inner { max-width: 900px; margin: 0 auto; }
+
+    .guests-grid {
+      margin-top: 40px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .guest-pair {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 18px; padding: 20px 22px;
+      display: flex; align-items: center; gap: 14px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .guest-pair:hover { background: rgba(255,255,255,0.09); transform: translateY(-2px); }
+
+    .guest-avatars { display: flex; flex-shrink: 0; }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; font-weight: 700;
+      border: 2px solid var(--navy);
+    }
+    .avatar:nth-child(2) { margin-left: -10px; }
+    .avatar-a { background: var(--accent); }
+    .avatar-b { background: rgba(61,122,200,0.5); border-color: var(--navy) !important; }
+
+    .guest-info { flex: 1; min-width: 0; }
+    .guest-name { font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .guest-plus { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .guest-connector {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent);
+      background: rgba(61,122,200,0.15); border-radius: 999px;
+      padding: 3px 8px; white-space: nowrap; flex-shrink: 0;
+    }
+
+    .guests-empty {
+      grid-column: 1 / -1;
+      text-align: center; padding: 48px;
+      color: var(--text-dim); font-size: 1rem;
+    }
+
+    .guests-count {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(61,122,200,0.15);
+      border: 1px solid rgba(61,122,200,0.3);
+      border-radius: 999px; padding: 6px 16px;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--accent); margin-top: 12px;
+    }
+    .count-dot {
+      width: 7px; height: 7px; background: var(--accent);
+      border-radius: 50%; animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    /* ── FOOTER ───────────────────────────────────────── */
+    footer {
+      background: var(--cream);
+      padding: 32px 28px;
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo { font-size: 1.3rem; font-weight: 700; color: var(--navy); }
+    .footer-text { font-size: 0.82rem; color: rgba(13,42,94,0.5); }
+
+    /* ── SCROLL FADE IN ───────────────────────────────── */
+    .fade-in {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ───────────────────────────────────── */
+    @media (max-width: 600px) {
+      .form-row { flex-direction: column; }
+      .hero-title { font-size: 3.2rem; }
+      nav { padding: 0 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-left">
+      <button class="hamburger" id="hamburger" aria-label="menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="#" class="logo">sfydk</a>
+    </div>
+    <a href="#rsvp" class="nav-btn">rsvp now</a>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#details">the event</a>
+    <a href="#concept">the concept</a>
+    <a href="#rsvp">rsvp</a>
+    <a href="#guests">guest list</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero-dot"></div>
+    <div class="hero-dot-2"></div>
+
+    <div class="hero-marquee-wrap">
+      <span class="hero-title">
+        some friends you don't know &nbsp;&nbsp;&nbsp; some friends you don't know &nbsp;&nbsp;&nbsp;
+      </span>
+    </div>
+
+    <p class="hero-subtitle">a party built on introductions &nbsp;·&nbsp; you + one stranger = magic</p>
+
+    <div class="hero-cta">
+      <a href="#rsvp" class="btn-primary">count me in</a>
+      <a href="#concept" class="btn-ghost">how it works</a>
+    </div>
+  </section>
+
+  <!-- EVENT DETAILS -->
+  <section class="details-section" id="details">
+    <div style="max-width:900px; margin:0 auto;">
+      <p class="section-label fade-in">the event</p>
+      <h2 class="section-heading fade-in">when & where <span>✦</span></h2>
+      <div class="details-grid">
+        <div class="detail-card fade-in">
+          <div class="detail-icon">📅</div>
+          <div class="detail-label">date</div>
+          <div class="detail-value">saturday, april 12</div>
+          <div class="detail-sub">doors open at 7pm</div>
+        </div>
+        <div class="detail-card fade-in">
+          <div class="detail-icon">🕖</div>
+          <div class="detail-label">time</div>
+          <div class="detail-value">7:00 – 11:00 pm</div>
+          <div class="detail-sub">arrive anytime</div>
+        </div>
+        <div class="detail-card fade-in">
+          <div class="detail-icon">📍</div>
+          <div class="detail-label">location</div>
+          <div class="detail-value">tbd — nyc</div>
+          <div class="detail-sub">address sent to rsvps</div>
+        </div>
+        <div class="detail-card fade-in">
+          <div class="detail-icon">🎟️</div>
+          <div class="detail-label">cost</div>
+          <div class="detail-value">free</div>
+          <div class="detail-sub">just bring your +1</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCEPT -->
+  <section class="concept-section" id="concept">
+    <div class="concept-inner">
+      <p class="section-label fade-in">the concept</p>
+      <h2 class="section-heading fade-in">how it works</h2>
+      <div class="concept-body">
+        <div class="concept-card fade-in">
+          <div class="concept-number">01</div>
+          <div class="concept-title">you're invited</div>
+          <div class="concept-text">you got here because someone vouches for you. every guest is a friend of a friend — that's literally the whole point.</div>
+        </div>
+        <div class="concept-card fade-in">
+          <div class="concept-number">02</div>
+          <div class="concept-title">bring one stranger</div>
+          <div class="concept-text">each person must bring exactly one guest that nobody else at the party has met before. no couples, no your-whole-friend-group.</div>
+        </div>
+        <div class="concept-card fade-in">
+          <div class="concept-number">03</div>
+          <div class="concept-title">make the intro</div>
+          <div class="concept-text">when you arrive, introduce your +1 to three people you know. that's it. then watch the room do its thing.</div>
+        </div>
+        <div class="concept-card fade-in">
+          <div class="concept-number">04</div>
+          <div class="concept-title">leave with new friends</div>
+          <div class="concept-text">by the end of the night you'll have met people you'd have never crossed paths with otherwise. that's the whole idea.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RSVP -->
+  <section class="rsvp-section" id="rsvp">
+    <div class="rsvp-inner">
+      <p class="section-label fade-in">rsvp</p>
+      <h2 class="section-heading fade-in">you coming?</h2>
+
+      <div class="rsvp-success" id="rsvpSuccess">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">you're on the list!</div>
+        <p class="success-text">we'll send the address closer to the date.<br/>get ready to meet someone new.</p>
+      </div>
+
+      <form class="rsvp-form fade-in" id="rsvpForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">first name</label>
+            <input type="text" id="firstName" placeholder="alex" required />
+          </div>
+          <div class="form-group">
+            <label for="lastName">last name</label>
+            <input type="text" id="lastName" placeholder="chen" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">email</label>
+          <input type="email" id="email" placeholder="you@email.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="howKnow">who invited you?</label>
+          <input type="text" id="howKnow" placeholder="a friend's name" />
+        </div>
+
+        <div class="divider">your +1</div>
+
+        <div class="plus1-box">
+          <div class="plus1-header">
+            <span class="plus1-badge">required</span>
+            <span class="plus1-title">who's your stranger?</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="plus1First">their first name</label>
+              <input type="text" id="plus1First" placeholder="jordan" required />
+            </div>
+            <div class="form-group">
+              <label for="plus1Last">their last name</label>
+              <input type="text" id="plus1Last" placeholder="kim" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="plus1How">how do you know them?</label>
+            <input type="text" id="plus1How" placeholder="we take the same pottery class" />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">lock in my spot →</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- GUEST LIST -->
+  <section class="guests-section" id="guests">
+    <div class="guests-inner">
+      <p class="section-label fade-in">who's coming</p>
+      <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;">
+        <h2 class="section-heading fade-in">the guest list</h2>
+        <div class="guests-count fade-in">
+          <span class="count-dot"></span>
+          <span id="guestCountLabel">0 pairs confirmed</span>
+        </div>
+      </div>
+
+      <div class="guests-grid" id="guestGrid">
+        <div class="guests-empty" id="guestsEmpty">
+          no one's rsvp'd yet — be the first 👀
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-logo">sfydk</span>
+    <span class="footer-text">some friends you don't know &nbsp;✦&nbsp; nyc</span>
+  </footer>
+
+  <script>
+    // ── Hamburger ────────────────────────────────────────
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+      });
+    });
+
+    // ── Intersection observer (fade in) ──────────────────
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // ── Guest list state ──────────────────────────────────
+    let guests = JSON.parse(localStorage.getItem('sfydk_guests') || '[]');
+
+    function initials(name) {
+      return name.trim().split(/\s+/).map(w => w[0]).slice(0,2).join('').toUpperCase();
+    }
+
+    function renderGuests() {
+      const grid = document.getElementById('guestGrid');
+      const empty = document.getElementById('guestsEmpty');
+      const countLabel = document.getElementById('guestCountLabel');
+
+      countLabel.textContent = `${guests.length} pair${guests.length !== 1 ? 's' : ''} confirmed`;
+
+      if (guests.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      // Only re-render new cards
+      const existing = grid.querySelectorAll('.guest-pair').length;
+      guests.slice(existing).forEach(g => {
+        const card = document.createElement('div');
+        card.className = 'guest-pair fade-in';
+        const youInitials = initials(g.you);
+        const them = g.plus1 || '?';
+        const themInitials = initials(them);
+        card.innerHTML = `
+          <div class="guest-avatars">
+            <div class="avatar avatar-a">${youInitials}</div>
+            <div class="avatar avatar-b">${themInitials}</div>
+          </div>
+          <div class="guest-info">
+            <div class="guest-name">${escHtml(g.you)}</div>
+            <div class="guest-plus">+ ${escHtml(them)}</div>
+          </div>
+          <span class="guest-connector">pair</span>
+        `;
+        grid.insertBefore(card, empty);
+        // trigger fade
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          observer.observe(card);
+        }));
+      });
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    renderGuests();
+
+    // ── RSVP Form ─────────────────────────────────────────
+    document.getElementById('rsvpForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const firstName  = document.getElementById('firstName').value.trim();
+      const lastName   = document.getElementById('lastName').value.trim();
+      const plus1First = document.getElementById('plus1First').value.trim();
+      const plus1Last  = document.getElementById('plus1Last').value.trim();
+
+      if (!firstName || !plus1First) {
+        const missing = !firstName ? document.getElementById('firstName') : document.getElementById('plus1First');
+        missing.style.borderColor = '#e05c5c';
+        missing.focus();
+        setTimeout(() => missing.style.borderColor = '', 2000);
+        return;
+      }
+
+      const entry = {
+        you:   [firstName, lastName].filter(Boolean).join(' '),
+        plus1: [plus1First, plus1Last].filter(Boolean).join(' '),
+      };
+
+      guests.push(entry);
+      localStorage.setItem('sfydk_guests', JSON.stringify(guests));
+      renderGuests();
+
+      // Show success
+      this.style.display = 'none';
+      const success = document.getElementById('rsvpSuccess');
+      success.style.display = 'block';
+      success.querySelector('.success-icon').style.animation = 'none';
+      void success.querySelector('.success-icon').offsetWidth;
+      success.querySelector('.success-icon').style.animation = '';
+
+      // Scroll to guests after a beat
+      setTimeout(() => {
+        document.getElementById('guests').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 1800);
+    });
+
+    // Reset border on input
+    ['firstName','lastName','email','plus1First','plus1Last'].forEach(id => {
+      document.getElementById(id).addEventListener('input', function() {
+        this.style.borderColor = '';
+      });
+    });
+  </script>
+</body>
+</html>
