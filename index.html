@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sfydk — some friends you don't know</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230D2A5E'/><text x='50' y='72' font-size='52' font-family='sans-serif' font-weight='900' fill='white' text-anchor='middle'>sf</text></svg>" />
+  <meta name="description" content="a party built on introductions — you + one stranger = magic. by sfydk." />
+  <meta property="og:title" content="sfydk — some friends you don't know" />
+  <meta property="og:description" content="a party built on introductions. you + one stranger = magic." />
+  <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -589,6 +594,43 @@
     }
     .fade-in.visible { opacity: 1; transform: translateY(0); }
 
+    /* ── COUNTDOWN ────────────────────────────────────── */
+    .ep-countdown {
+      font-size: 0.72rem; color: rgba(255,255,255,0.45);
+      margin-top: 8px; letter-spacing: 0.06em;
+    }
+    .ep-countdown.soon { color: #f0a050; }
+
+    /* ── COMING SOON CARD ─────────────────────────────── */
+    .ep-card-soon { opacity: 0.35; cursor: default; pointer-events: none; }
+
+    /* ── RSVP CAPACITY ────────────────────────────────── */
+    .rsvp-capacity {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(61,122,200,0.15);
+      border: 1px solid rgba(61,122,200,0.3);
+      border-radius: 999px; padding: 6px 16px;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--accent); margin-top: 12px; margin-bottom: 4px;
+    }
+
+    /* ── ADDRESS REVEAL ───────────────────────────────── */
+    .address-reveal {
+      background: rgba(61,122,200,0.1);
+      border: 1.5px solid rgba(61,122,200,0.3);
+      border-radius: 16px; padding: 20px 24px; margin: 20px 0;
+    }
+    .address-reveal-label {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 8px;
+    }
+    .address-reveal-value {
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--white); margin-bottom: 4px;
+    }
+    .address-reveal-sub { font-size: 0.8rem; color: var(--text-dim); }
+
     /* ── RESPONSIVE ───────────────────────────────────── */
     @media (max-width: 600px) {
       .form-row { flex-direction: column; }
@@ -609,7 +651,13 @@
           <div class="ep-icon">🎉</div>
           <div class="ep-name">some friends you don't know</div>
           <div class="ep-date">saturday, march 21</div>
+          <div class="ep-countdown" id="epCountdown"></div>
         </button>
+        <div class="ep-card ep-card-soon">
+          <div class="ep-icon">✦</div>
+          <div class="ep-name">another night</div>
+          <div class="ep-date">coming soon</div>
+        </div>
       </div>
     </div>
   </div>
@@ -681,7 +729,7 @@
           <div class="detail-icon">📍</div>
           <div class="detail-label">location</div>
           <div class="detail-value">Christopher's apartment</div>
-          <div class="detail-sub">address released via email after submission</div>
+          <div class="detail-sub">revealed on your rsvp confirmation</div>
         </div>
         <div class="detail-card fade-in">
           <div class="detail-icon">🎟️</div>
@@ -738,11 +786,20 @@
     <div class="rsvp-inner">
       <p class="section-label fade-in">rsvp</p>
       <h2 class="section-heading fade-in">you coming?</h2>
+      <div class="rsvp-capacity fade-in" id="rsvpCapacity">
+        <span class="count-dot"></span>
+        <span id="rsvpCapacityLabel">loading…</span>
+      </div>
 
       <div class="rsvp-success" id="rsvpSuccess">
         <div class="success-icon">🎉</div>
-        <div class="success-title">you're on the list!</div>
-        <p class="success-text">we'll send the address closer to the date.<br/>get ready to meet someone new.</p>
+        <div class="success-title" id="successTitle">you're on the list!</div>
+        <div class="address-reveal" id="addressReveal" style="display:none;">
+          <div class="address-reveal-label">📍 the address</div>
+          <div class="address-reveal-value" id="addressValue"></div>
+          <div class="address-reveal-sub">saturday, march 21 · 6:00 – 10:00 pm</div>
+        </div>
+        <p class="success-text">get ready to meet someone new.</p>
       </div>
 
       <form class="rsvp-form fade-in" id="rsvpForm" novalidate>
@@ -825,6 +882,8 @@
     // ── Config ────────────────────────────────────────────
     const AIRTABLE_TOKEN = 'patRcpcnmdSE0rInG.32c2555a516fa4ee8f01bd78328f7150b4450608e78ec78b9ec7b518a8b4054f';
     const AIRTABLE_URL   = 'https://api.airtable.com/v0/appc7TCj498K2QVzq/tbl1nXIyQEGvCysB0';
+    const EVENT_ADDRESS  = 'TBD — christopher will share closer to the date'; // ← update with actual address
+    const MAX_PAIRS      = 20; // ← max capacity for the night
 
     // ── iCal download link ────────────────────────────────
     (function() {
@@ -938,6 +997,17 @@
     }, { threshold: 0.12 });
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
+    // ── Countdown timer ───────────────────────────────────
+    (function() {
+      const el = document.getElementById('epCountdown');
+      if (!el) return;
+      const target = new Date('2026-03-21T18:00:00');
+      const days = Math.ceil((target - new Date()) / 86400000);
+      if (days <= 0)       { el.textContent = 'tonight 🎉'; el.classList.add('soon'); }
+      else if (days === 1) { el.textContent = 'tomorrow'; el.classList.add('soon'); }
+      else                 { el.textContent = `${days} days away`; }
+    })();
+
     // ── Guest list state ──────────────────────────────────
     let guests = [];
 
@@ -993,12 +1063,20 @@
     document.getElementById('pairModalClose').addEventListener('click', closePairModal);
     pairModal.addEventListener('click', e => { if (e.target === pairModal) closePairModal(); });
 
+    function updateCapacity() {
+      const lbl = document.getElementById('rsvpCapacityLabel');
+      if (!lbl) return;
+      const rem = Math.max(0, MAX_PAIRS - guests.length);
+      lbl.textContent = rem === 0 ? 'at capacity' : `${rem} of ${MAX_PAIRS} spots remaining`;
+    }
+
     function renderGuests() {
       const grid = document.getElementById('guestGrid');
       const empty = document.getElementById('guestsEmpty');
       const countLabel = document.getElementById('guestCountLabel');
 
       countLabel.textContent = `${guests.length} pair${guests.length !== 1 ? 's' : ''} confirmed`;
+      updateCapacity();
 
       if (guests.length === 0) {
         empty.style.display = 'block';
@@ -1045,6 +1123,7 @@
           plus1:     r.fields['Plus One']      || '',
           howKnow:   r.fields['How They Know'] || '',
           invitedBy: r.fields['Invited By']    || '',
+          email:     r.fields['Email']         || '',
         })).filter(g => g.you);
         renderGuests();
       } catch (err) {
@@ -1066,11 +1145,35 @@
       const plus1Last  = document.getElementById('plus1Last').value.trim();
       const plus1How   = document.getElementById('plus1How').value.trim();
 
-      if (!firstName || !plus1First) {
-        const missing = !firstName ? document.getElementById('firstName') : document.getElementById('plus1First');
-        missing.style.borderColor = '#e05c5c';
-        missing.focus();
-        setTimeout(() => missing.style.borderColor = '', 2000);
+      if (!firstName) {
+        const el = document.getElementById('firstName');
+        el.style.borderColor = '#e05c5c'; el.focus();
+        setTimeout(() => el.style.borderColor = '', 2000);
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        const el = document.getElementById('email');
+        el.style.borderColor = '#e05c5c'; el.focus();
+        setTimeout(() => el.style.borderColor = '', 2000);
+        return;
+      }
+
+      if (guests.some(g => g.email && g.email.toLowerCase() === email.toLowerCase())) {
+        const el = document.getElementById('email');
+        el.style.borderColor = '#e05c5c';
+        const btn2 = this.querySelector('.btn-submit');
+        btn2.disabled = true;
+        btn2.textContent = "looks like you're already on the list!";
+        setTimeout(() => { btn2.textContent = 'lock in my spot →'; btn2.disabled = false; el.style.borderColor = ''; }, 4000);
+        return;
+      }
+
+      if (!plus1First) {
+        const el = document.getElementById('plus1First');
+        el.style.borderColor = '#e05c5c'; el.focus();
+        setTimeout(() => el.style.borderColor = '', 2000);
         return;
       }
 
@@ -1106,12 +1209,15 @@
           throw new Error(`Airtable ${atRes.status}: ${msg}`);
         }
 
-        guests.push({ you: youName, plus1: plus1Name, howKnow: plus1How, invitedBy: howKnow });
+        guests.push({ you: youName, plus1: plus1Name, howKnow: plus1How, invitedBy: howKnow, email });
         renderGuests();
 
         // Show success
         this.style.display = 'none';
         const success = document.getElementById('rsvpSuccess');
+        document.getElementById('successTitle').textContent = `you + ${plus1First} are on the list!`;
+        document.getElementById('addressValue').textContent = EVENT_ADDRESS;
+        document.getElementById('addressReveal').style.display = 'block';
         success.style.display = 'block';
         success.querySelector('.success-icon').style.animation = 'none';
         void success.querySelector('.success-icon').offsetWidth;
